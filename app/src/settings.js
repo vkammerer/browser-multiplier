@@ -1,4 +1,4 @@
-/*globals define*/
+/*globals define console*/
 define(function(require, exports, module) {
     'use strict';
     // import dependencies
@@ -18,33 +18,33 @@ define(function(require, exports, module) {
         siteWidth: '980',
         siteContentSelector: 'body',
         siteBackground: 'white'
-    }
-
+    };
 
     /* Formulaire */
 
     var formulaireSurface = new Surface({
-        content: '\
-        <form id="formulaire">\
-            <h1>The 7 windows browser</h1>\
-            <div class="inputContainer">\
-                <label for="siteWidth">Tab Width</label>\
-                <input type="number" name="siteWidth" value="' + defaults.siteWidth + '">\
-            </div>\
-            <div class="inputContainer">\
-                <label for="siteContentSelector">Content Selector</label>\
-                <input type="text" name="siteContentSelector" value="' + defaults.siteContentSelector + '">\
-            </div>\
-            <div class="inputContainer">\
-                <label for="siteBackground">Background</label>\
-                <input type="text" name="siteBackground" value="' + defaults.siteBackground + '">\
-            </div>\
-            <div class="inputContainer">\
-                <input type="submit" value="Pimp it">\
-            </div>\
-            <div class="inputContainer">\
-            </div>\
-        </form>'
+        content: [
+        '<form id="formulaire">',
+            '<h1>The 7 windows browser</h1>',
+            '<div class="inputContainer">',
+                '<label for="siteWidth">Tab Width</label>',
+                '<input type="number" name="siteWidth" value="' + defaults.siteWidth + '">',
+            '</div>',
+            '<div class="inputContainer">',
+                '<label for="siteContentSelector">Content Selector</label>',
+                '<input type="text" name="siteContentSelector" value="' + defaults.siteContentSelector + '">',
+            '</div>',
+            '<div class="inputContainer">',
+                '<label for="siteBackground">Background</label>',
+                '<input type="text" name="siteBackground" value="' + defaults.siteBackground + '">',
+            '</div>',
+            '<div class="inputContainer">',
+                '<input type="submit" value="Pimp it">',
+            '</div>',
+            '<div class="inputContainer">',
+            '</div>',
+        '</form>'
+        ].join('')
     });
 
     var formulaireModifier = new Modifier({

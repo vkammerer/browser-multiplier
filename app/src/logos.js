@@ -1,4 +1,4 @@
-/*globals define*/
+/*globals define console*/
 define(function(require, exports, module) {
     'use strict';
     // import dependencies

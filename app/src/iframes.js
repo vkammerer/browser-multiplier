@@ -1,4 +1,4 @@
-/*globals define*/
+/*globals define console*/
 define(function(require, exports, module) {
     'use strict';
     var Surface = require('famous/core/Surface');
@@ -59,18 +59,18 @@ define(function(require, exports, module) {
         };
 
         var src = '/api/?' + $.param(thisConfig);
-        iframeSurfaces[index].setContent('\
-            <div class="browser">\
-                <form class="browserBar">\
-                    <input type="hidden" name="browserId" value="' + index + '">\
-                    <input type="text" name="browserAddress">\
-                    <input type="submit" value="Go">\
-                </form>\
-                <div class="iframeContainer">\
-                    <iframe id="iframe' +  index + '" src="' + src + '"></iframe>\
-                </div>\
-            </div>\
-        ');
+        iframeSurfaces[index].setContent([
+            '<div class="browser">',
+                '<form class="browserBar">',
+                    '<input type="hidden" name="browserId" value="' + index + '">',
+                    '<input type="text" name="browserAddress">',
+                    '<input type="submit" value="Go">',
+                '</form>',
+                '<div class="iframeContainer">',
+                    '<iframe id="iframe' +  index + '" src="' + src + '"></iframe>',
+                '</div>',
+            '</div>'
+        ].join(''));
     };
 
     var positiveModulo = function(n, m) {
