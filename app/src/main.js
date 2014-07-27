@@ -1,37 +1,37 @@
 /*globals define console*/
 define(function(require, exports, module) {
-    'use strict';
-    var Engine = require('famous/core/Engine');
+	'use strict';
+	var Engine = require('famous/core/Engine');
 //    var logos = require('logos');
-    var iframes = require('iframes');
-    var router = require('router');
-    var settings = require('settings');
-    var $ = require('jquery');
+	var iframes = require('iframes');
+	var router = require('router');
+	var settings = require('settings');
+	var $ = require('jquery');
 
-    /* Main context */
+	/* Main context */
 
-    var mainContext = Engine.createContext();
+	var mainContext = Engine.createContext();
 
-    /* Pub / Sub manager */
+	/* Pub / Sub manager */
 
-    var $body = $('body');
+	var $body = $('body');
 
-    /* Logo */
+	/* Logo */
 
 //    logos.init(mainContext);
 
-    /* Ifames */
+	/* Ifames */
 
-    $body.on('vkSettings', function(e, config) {
-        iframes.reset(config, mainContext);
-    });
+	$body.on('vkSettings', function(e, config) {
+		iframes.reset(config, mainContext);
+	});
 
-    /* Url router */
+	/* Url router */
 
-    router.init();
+	router.init();
 
-    /* Settings */
+	/* Settings */
 
-    settings.init(mainContext);
+	settings.init(mainContext);
 
 });

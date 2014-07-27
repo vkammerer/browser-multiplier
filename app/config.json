@@ -1,6 +1,6 @@
 {
-  "siteUrl" : "http://www.stereolux.org",
-  "siteContentSelector" : "body",
-  "siteWidth" : "1092",
-  "siteBackground" : "#000"
+	"siteUrl" : "http://www.stereolux.org",
+	"siteContentSelector" : "body",
+	"siteWidth" : "1092",
+	"siteBackground" : "#000"
 }

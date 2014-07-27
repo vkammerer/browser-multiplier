@@ -1,34 +1,34 @@
 /*globals define console*/
 define(function(require, exports, module) {
-    'use strict';
-    var purl = require('purl');
-    var $ = require('jquery');
+	'use strict';
+	var purl = require('purl');
+	var $ = require('jquery');
 
-    /* Pub / Sub manager */
+	/* Pub / Sub manager */
 
-    var $body = $('body');
+	var $body = $('body');
 
-    /* Router */
+	/* Router */
 
-    var init = function() {
+	var init = function() {
 
-        var vkPurl = purl(window.location.href);
+		var vkPurl = purl(window.location.href);
 
-        var thisConfig = {
-            siteUrl : vkPurl.param('siteUrl'),
-            siteContentSelector : vkPurl.param('siteContentSelector'),
-            siteWidth : vkPurl.param('siteWidth'),
-            siteBackground : vkPurl.param('siteBackground')
-        };
+		var thisConfig = {
+			siteUrl : vkPurl.param('siteUrl'),
+			siteContentSelector : vkPurl.param('siteContentSelector'),
+			siteWidth : vkPurl.param('siteWidth'),
+			siteBackground : vkPurl.param('siteBackground')
+		};
 
-        if (thisConfig.siteUrl) {
-            $body.trigger('vkConfig', thisConfig);
-        }
+		if (thisConfig.siteUrl) {
+			$body.trigger('vkConfig', thisConfig);
+		}
 
-    };
+	};
 
-    return {
-        init: init
-    };
+	return {
+		init: init
+	};
 
 });
