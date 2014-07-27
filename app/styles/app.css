@@ -1,0 +1,81 @@
+html {
+  background: #fff;
+}
+
+.backfaceVisibility {
+  -webkit-backface-visibility: visible;
+  backface-visibility: visible;
+}
+
+* {
+    box-sizing:border-box;
+}
+
+body, input {
+    font-family: Arial;
+    font-size: 16px;
+}
+
+.browser {
+    height: 830px;
+    background: url('/content/images/ajax-loader.gif') center center no-repeat black;
+}
+
+.browser .browserBar {
+    height: 30px;
+    background: #CCC;
+}
+.iframeContainer {
+    height: 800px;
+    background: url('/content/images/ajax-loader.gif') center center no-repeat black;
+}
+
+iframe {
+    visibility: hidden;
+    height: 800px;
+    border:0;
+    background: url('/content/images/ajax-loader.gif') center center no-repeat black;
+}
+
+#formulaire {
+    background: blue;
+    width: 400px;
+    padding: 10px;
+    color: white;
+}
+
+#formulaire h1 {
+    text-align: center;
+    margin: 5px 0 10px;
+}
+
+#formulaire .inputContainer {
+    clear: both;
+    padding: 10px 0;
+}
+
+#formulaire .inputContainer label,
+#formulaire .inputContainer input {
+    float: left;
+}
+#formulaire .inputContainer label {
+    display: inline-block;
+    width: 140px;
+    padding-top: 3px;
+}
+#formulaire .inputContainer input {
+    padding: 4px 4px;
+    width: 0.5turn40px;
+    margin: 0;
+}
+#formulaire .inputContainer input[type=submit] {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background: red;
+    color: white;
+    font-size: 16px;
+    border:0;
+}
+

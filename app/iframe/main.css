@@ -1,0 +1,22 @@
+html::-webkit-scrollbar {
+    display: none !important
+}
+body {
+    position: relative;
+}
+body #contentContainer {
+    position: relative;
+    z-index: 0;
+}
+#inactiveLayer {
+    display:none;
+    position: absolute;
+    z-index: 1000000000000;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+body.inactive #inactiveLayer {
+    display:block;
+}
