@@ -1,7 +1,7 @@
 #Famo.us Base
 > E.g. Seed project to get started with Famo.us.
 
-[![Build Status](https://travis-ci.org/vkammerer/seven-browsers.svg?branch=master)](https://travis-ci.org/vkammerer/seven-browsers) [![Dependency Status](https://david-dm.org/vkammerer/seven-browsers.svg)](https://david-dm.org/vkammerer/seven-browsers) [![devDependency Status](https://david-dm.org/vkammerer/seven-browsers/dev-status.svg)](https://david-dm.org/vkammerer/seven-browsers#info=devDependencies)
+[![Build Status]](https://travis-ci.org/vkammerer/seven-browsers) [![Dependency Status]](https://david-dm.org/vkammerer/seven-browsers) [![devDependency Status](https://david-dm.org/vkammerer/seven-browsers/dev-status.svg)](https://david-dm.org/vkammerer/seven-browsers#info=devDependencies)
 
 ##Dependencies
 It is actually quite simple really

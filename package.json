@@ -42,7 +42,7 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "cheerio": "~0.12.4",
-    "request": "~2.27.0"
+    "cheerio": "~0.17.0",
+    "request": "~2.39.0"
   }
 }
