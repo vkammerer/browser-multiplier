@@ -51,27 +51,25 @@ define(function(require, exports, module) {
 		transform : Transform.translate(-10, 10, 0),
 		opacity   : 1,
 		origin    : [1, 0],
-		size      : [400, 400]
+		size      : [400, 270]
 	});
 
 	$body.on('submit', '#formulaire', function(e) {
 		e.preventDefault();
-		var thisConfig = utils.serializeFormToJSON(this);
-		console.log(thisConfig);
+		var settings = utils.serializeFormToJSON(this);
 		if (
-			thisConfig.siteContentSelector &&
-			thisConfig.siteWidth &&
-			thisConfig.siteBackground
+			settings.siteContentSelector &&
+			settings.siteWidth &&
+			settings.siteBackground
 		) {
-			console.log(thisConfig);
-			$body.trigger('vkSettings', thisConfig);
+			$body.trigger('settings', settings);
 		}
 
 	});
 
 	var init = function(context) {
 		context.add(formulaireModifier).add(formulaireSurface);
-		$body.trigger('vkSettings', defaults);
+		$body.trigger('settings', defaults);
 	};
 
 	return {

@@ -1,14 +1,28 @@
-(function($) {
+(function() {
 
-	var currentPosition;
-	var $body = $('body');
+	var	currentPosition,
+		middleIframeIndex,
+		transitionState;
+	var $body = document.getElementsByTagName('body')[0];
+	var $a = document.getElementsByTagName('a');
+	var $inactiveLayer = document.getElementById('inactiveLayer');
 
-	var hashLinkRegexp = new RegExp('^' + window.vkSiteUrl + '/#');
+	var messageParent = function(message){
+		message.siteIndex = window.sevenBrowsers.siteIndex;
+		window.parent.postMessage(message, '*');
+	}
+
+	/*
+		Links events
+	*/
+
+	var hashLinkRegexp = new RegExp('^' + window.sevenBrowsers.siteUrl + '/#');
+	var hasClassRegexp = new RegExp('\blightbox-processed\b');
 
 	var isCorrectLink = function(link) {
 		if (
 			(link.href.match(hashLinkRegexp)) ||
-			($(link).hasClass('lightbox-processed'))
+			(link.className.match(hasClassRegexp))
 		){
 			return false;
 		}
@@ -17,57 +31,84 @@
 		}
 	}
 
-	$('a').bind('mouseover', function(e) {
+	var onLinkMouseover = function(e){
 		e.stopPropagation();
 		e.preventDefault();
-		console.log(this.href);
 		if (isCorrectLink(this)) {
-			window.parent.postMessage({
-				action:'hover',
+			messageParent({
+				action:'mouseover',
 				href: this.href
-			}, '*');
-		}
-	})
+			});
+		}		
+	}
+	var onLinkMouseout = function(e){
+		if (isCorrectLink(this)) {
+			messageParent({
+				action:'mouseout'
+			});
+		}		
+	}
 
-	$('a').bind('click', function(e) {
+	var onLinkClick = function(e){
 		e.stopPropagation();
 		e.preventDefault();
 		if (isCorrectLink(this)) {
-			window.parent.postMessage({
+			messageParent({
 				action:'click'
-			}, '*');
+			});
 		}
-	});
+	}
 
-	$('#inactiveLayer').bind('click', function(e) {
-		if (currentPosition !== 3) {
-			window.parent.postMessage({
+	for (var i = 0; i < $a.length; i++) {
+		$a[i].addEventListener('mouseover', onLinkMouseover, false);
+		$a[i].addEventListener('mouseout', onLinkMouseout, false);
+		$a[i].addEventListener('click', onLinkClick, false);
+	}
+
+	/*
+		Inactive layer click
+	*/
+	var onInactiveLayerClick = function(e){
+		if (currentPosition !== middleIframeIndex) {
+			messageParent({
 				action:'bodyclick',
-			}, '*');
+			});
 		}
-	})
+	}
 
+	$inactiveLayer.addEventListener('click', onInactiveLayerClick, false);
+
+	/*
+		Postmessage events
+	*/
 	var receiveMessage = function(e) {
 
-		if (e.origin !== window.location.origin) {
+		currentPosition = e.data.currentPosition || currentPosition;
+		middleIframeIndex = e.data.middleIframeIndex || middleIframeIndex;
+		transitionState = e.data.transitionState || transitionState;
+
+		if (
+			(e.origin !== window.location.origin) ||
+			(typeof(currentPosition) === 'undefined')
+		){
 			return false;
 		}
 
-		currentPosition = e.data.position;
-
-		if (currentPosition === 3) {
-			$body.removeClass('inactive');
+		else if (
+			(transitionState === 'stable') &&
+			(currentPosition === middleIframeIndex)
+		){
+			$body.classList.remove('inactive');
 		}
 		else {
-			$body.addClass('inactive');
+			$body.classList.add('inactive');
 		}
 
 	}
 
 	window.addEventListener('message', receiveMessage, false);
 
-	window.parent.postMessage({
-		action:'ready',
-	}, '*');
+	messageParent({ action : 'ready' });
 
-})(jQuery)
+
+})()

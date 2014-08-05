@@ -20,7 +20,12 @@ define(function(require, exports, module) {
 		return o;
 	};
 
+	var positiveModulo = function(n, m) {
+		return ((n%m)+m)%m;
+	};
+
 	return {
+		positiveModulo: positiveModulo,
 		serializeFormToJSON: serializeFormToJSON
 	};
 

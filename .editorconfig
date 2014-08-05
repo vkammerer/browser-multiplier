@@ -31,4 +31,4 @@ indent_size = 2
 
 [*.css]
 indent_style = tab
-indent_size = 2
+indent_size = 4

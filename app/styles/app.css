@@ -1,82 +1,141 @@
-html {
-  background: #fff;
-}
+/*
+	Famo.us generator default utility class
+*/
 
 .backfaceVisibility {
   -webkit-backface-visibility: visible;
   backface-visibility: visible;
 }
 
+/*
+	Seven browsers custom
+*/
+
 * {
-    box-sizing:border-box;
+	box-sizing:border-box;
 }
 
 body, input {
-    font-family: Arial;
-    font-size: 16px;
+	font-family: Arial;
+	font-size: 16px;
 }
 
 .browser {
-    height: 830px;
-    background: url('/content/images/ajax-loader.gif') center center no-repeat black;
+	height: 830px;
+	background: linear-gradient(180deg, #edeaed 0%, #cfd1cd 100%);
+	background-repeat: no-repeat;
+	background-size: 100% 65px;
 }
-
 .browser .browserBar {
-    height: 30px;
-    background: #CCC;
+	position:relative;
+	height: 65px;
+	width:100%;
+	border-bottom: 1px solid #6f6f6f;
+}
+.browser .browserTitle,
+.browser .browserTitleWhite {
+	height: 25px;
+	display: inline-block;
+}
+.browser .browserTitle {
+	width:30%;
+	padding: 0px  15px;
+	position:relative;
+	overflow: hidden;
+}
+.browser .browserTitle .browserTitleBorder {
+	border-top:1px solid #9d9d9d;
+}
+.browser .browserTitle:before,
+.browser .browserTitle:after {
+	content:'';
+	position: absolute;
+	top: 0px;
+	width:29px;
+	height: 15px;
+	border-bottom:1px solid #9d9d9d;
+	background: white;
+}
+.browser .browserTitleWhite {
+	width:70%;
+	border-bottom:1px solid #9d9d9d;
+	background:white;
+}
+.browser .browserTitle:before {
+	left: -13px;
+	transform: rotate(300deg);
+}
+.browser .browserTitle:after {
+	right: -13px;
+	transform: rotate(-300deg);
+}
+.browser .browserBar form {
+	padding: 6px 14px;
+	margin-top: -4px;
+	border-left:1px solid #9d9d9d;
+	border-right:1px solid #9d9d9d;
+}
+.browser .browserBar form input {
+	width:100%;
+	height: 27px;
+	margin: 0;
+	border-radius: 3px;
+	border-width:1px;
+	border-color: #9b9b99 #c1bfbf #c1bfbf #c1bfbf;
+	border-style:solid;
 }
 .iframeContainer {
-    height: 800px;
-    background: url('/content/images/ajax-loader.gif') center center no-repeat black;
+	height: 200px;
+	background: url('/content/images/ajax-loader.gif') center center no-repeat black;
 }
-
 iframe {
-    visibility: hidden;
-    height: 800px;
-    width: 100%;
-    border:0;
-    background: url('/content/images/ajax-loader.gif') center center no-repeat black;
+	visibility: hidden;
+	height: 200px;
+	width: 100%;
+	border:0;
+	background: url('/content/images/ajax-loader.gif') center center no-repeat black;
 }
-
 #formulaire {
-    background: blue;
-    width: 400px;
-    padding: 10px;
-    color: white;
+	background: #EEE;
+	width: 400px;
+	padding: 10px;
+	color: #333;
+	border:1px solid #CCC;
 }
 
 #formulaire h1 {
-    text-align: center;
-    margin: 5px 0 10px;
+	text-align: center;
+	margin: 5px 0 10px;
 }
 
 #formulaire .inputContainer {
-    clear: both;
-    padding: 10px 0;
+	clear: both;
+	padding: 10px 0;
 }
 
 #formulaire .inputContainer label,
 #formulaire .inputContainer input {
-    float: left;
+	float: left;
 }
 #formulaire .inputContainer label {
-    display: inline-block;
-    width: 140px;
-    padding-top: 3px;
+	display: inline-block;
+	width: 140px;
+	padding-top: 3px;
 }
 #formulaire .inputContainer input {
-    padding: 4px 4px;
-    width: 0.5turn40px;
-    margin: 0;
+	padding: 4px 4px;
+	width: 238px;
+	margin: 0;
+	border:1px solid #CCC;
 }
 #formulaire .inputContainer input[type=submit] {
-    display: block;
-    width: 100%;
-    margin-top: 10px;
-    padding: 10px;
-    background: red;
-    color: white;
-    font-size: 16px;
-    border:0;
+	display: block;
+	width: 100%;
+	margin-top: 10px;
+	padding: 10px;
+	background: white;
+	color: #333;
+	font-size: 16px;
+	border:1px solid #CCC;
 }
 

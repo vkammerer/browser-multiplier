@@ -1,63 +1,78 @@
 var fs = require('fs'),
-    url = require('url'),
-    request = require('request'),
-    $ = require('cheerio');
+	url = require('url'),
+	request = require('request'),
+	$ = require('cheerio'),
+	validator = require('validator');
 
-var formatIframe = function(config, req, html) {
+var formatIframe = function(settings, req, html) {
 
-    var requestOrigin = 'http://' + req.headers.host;
+	var requestOrigin = 'http://' + req.headers.host;
 
-    var $template = $.load(html);
-    var $content = $template(config.siteContentSelector).html();
+	var $template = $.load(html);
+	var $content = $template(settings.siteContentSelector).html();
 
-    /* Head */
-    $template('head').prepend('\
-        <base href="' + config.siteUrl + '">\
-        <link rel="stylesheet" type="text/css" href="' + requestOrigin + '/iframe/main.css" />\
-    ');
+	/* Head */
+	$template('head').prepend([
+		'<base href="' + settings.siteUrl + '">',
+		'<link rel="stylesheet" type="text/css" href="' + requestOrigin + '/iframe/main.css" />'
+	].join(''));
 
-    /* Body */
-    $template('body').html('\
-        <div id="contentContainer"></div><div id="inactiveLayer"></div>\
-        <script>window.vkSiteUrl = "' + config.siteUrl + '";</script>\
-        <script src="' + requestOrigin + '/iframe/main.js"></script>\
-    ');
-    $template('#contentContainer').html($content);
+	/* Body */
+	$template('body').html([
+		'<div id="inactiveLayer"></div>',
+		'<script>window.sevenBrowsers = {',
+			'siteIndex :' + settings.siteIndex + ',',
+			'siteUrl :"' + settings.siteUrl + '"',
+		'};</script>',
+		'<script src="' + requestOrigin + '/iframe/main.js"></script>'
+	].join(''));
+	$template('body').prepend($content);
 
-    return $template.html();
+	return $template.html();
 
 }
 
 var handleRequest = function (req, res, next) {
 
-    if (!req.url.match(/^\/api/)) return next();
+	/* Check if this is a call to the API */
 
-    var parsedUrl = url.parse(req.url, true, true);
+	if (!req.url.match(/^\/api/)) {
+		return next();
+	}
 
-    var config = {
-        siteUrl : parsedUrl.query['siteUrl'] || '',
-        siteContentSelector : parsedUrl.query['siteContentSelector'] || 'body'
-    }
+	var parsedUrl = url.parse(req.url, true, true);
+	var siteIndex = parsedUrl.query['siteIndex'];
+	var siteUrl = parsedUrl.query['siteUrl'];
+	var siteContentSelector = parsedUrl.query['siteContentSelector'] || 'body';
 
-    if (!config.siteUrl) {
-        res.statusCode = 400;
-        res.end('please provide a "siteUrl" parameter');
-    }
+	/* Check if the "siteUrl" parameter is properly defined */
 
-    request(config.siteUrl, function(error, response, body){
-        if (error) {
-            console.log(error);
-            res.statusCode = 400;
-            res.end(error);
-        }
-        else {
-            res.writeHead(200, { 'Cache-Control': 'max-age=3600' });
-            res.end(formatIframe(config, req, body));
+	if (typeof(siteIndex) === 'undefined') {
+		res.statusCode = 400;
+		return res.end('please provide a correct "siteIndex" parameter');
+	}
 
-        }
-    })
+	if (!validator.isURL(siteUrl)) {
+		res.statusCode = 400;
+		return res.end('please provide a correct "siteUrl" parameter');
+	}
+
+	request(siteUrl, function(error, response, body){
+		if (error) {
+			res.statusCode = 400;
+			return res.end(error);
+		}
+		else {
+			res.writeHead(200, { 'Cache-Control': 'max-age=3600' });
+			return res.end(formatIframe({
+				siteIndex : siteIndex,
+				siteUrl : siteUrl,
+				siteContentSelector : siteContentSelector
+			}, req, body));
+		}
+	})
 }
 
 module.exports = {
-    handleRequest: handleRequest
+	handleRequest: handleRequest
 }

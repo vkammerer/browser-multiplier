@@ -1,13 +1,6 @@
 html::-webkit-scrollbar {
 	display: none !important
 }
-body {
-	position: relative;
-}
-body #contentContainer {
-	position: relative;
-	z-index: 0;
-}
 #inactiveLayer {
 	display:none;
 	position: absolute;

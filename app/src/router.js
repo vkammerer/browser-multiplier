@@ -12,17 +12,17 @@ define(function(require, exports, module) {
 
 	var init = function() {
 
-		var vkPurl = purl(window.location.href);
+		var thisPurl = purl(window.location.href);
 
-		var thisConfig = {
-			siteUrl : vkPurl.param('siteUrl'),
-			siteContentSelector : vkPurl.param('siteContentSelector'),
-			siteWidth : vkPurl.param('siteWidth'),
-			siteBackground : vkPurl.param('siteBackground')
+		var settings = {
+			siteUrl : thisPurl.param('siteUrl'),
+			siteContentSelector : thisPurl.param('siteContentSelector'),
+			siteWidth : thisPurl.param('siteWidth'),
+			siteBackground : thisPurl.param('siteBackground')
 		};
 
-		if (thisConfig.siteUrl) {
-			$body.trigger('vkConfig', thisConfig);
+		if (settings.siteUrl) {
+			$body.trigger('settings', settings);
 		}
 
 	};
