@@ -9,6 +9,7 @@
     "rules": {
         "no-console": 0,
         "no-undef": 1,
+        "no-loop-func":0,
         "valid-jsdoc": 0,
         "curly": [1, "all"],
         "brace-style": [1, "stroustrup"],

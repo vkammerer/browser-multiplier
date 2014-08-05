@@ -1,9 +1,6 @@
 /*globals define console*/
 define(function(require, exports, module) {
 	'use strict';
-	var Surface = require('famous/core/Surface');
-	var ContainerSurface = require('famous/surfaces/ContainerSurface');
-	var StateModifier = require('famous/modifiers/StateModifier');
 	var Transform = require('famous/core/Transform');
 	var utils = require('utils');
 	var $ = require('jquery');
@@ -22,14 +19,13 @@ define(function(require, exports, module) {
 	var translateXRatio = 0.6;
 	var transitionDuration = 500;
 	var browserProportions = [
-		0.3,
-		0.15,
-		0.075
+		0.2,
+		0.2,
+		0.2
 	];
 
 	/* Window dimensions */
 
-	var bodyWidth = $body.width();
 	var bodyHeight = $body.height();
 
 	var browserHeight = bodyHeight -  2 * interfacePadding;
@@ -39,34 +35,33 @@ define(function(require, exports, module) {
 	/* Transformations  */
 
 	// middle Browser remains unchanged
-	var iframeTransforms = [
+	var browserTransforms = [
 		Transform.multiply(Transform.translate(0, 0, 0), Transform.scale(1, 1, 1))
 	];
 
 	// @TranslateX : distances on the X axis from the center of the window;
-	var translateX = [tabWidth * ( 0.5 + browserProportions[0] / 2) + 10];
+	var translateX = [tabWidth * (0.5 + browserProportions[0] / 2) + 10];
 	for (var i = 1; i < browserProportions.length; i++) {
 		translateX[i] = translateX[i-1] + tabWidth * browserProportions[i-1] * translateXRatio;
 	}
 
-	for (var i = 0; i < browserProportions.length; i++) {
-		var thisScale =  Transform.scale(browserProportions[i], browserProportions[i], browserProportions[i]);
-		var thisTranslateRight = Transform.translate(translateX[i], translateY, -i-1);
-		var thisTranslateLeft = Transform.translate(-translateX[i], translateY, -i-1);
+	for (var j = 0; j < browserProportions.length; j++) {
+		var thisScale =  Transform.scale(browserProportions[j], browserProportions[j], browserProportions[j]);
+		var thisTranslateRight = Transform.translate(translateX[j], translateY, -j-1);
+		var thisTranslateLeft = Transform.translate(-translateX[j], translateY, -j-1);
 		var thisTransformRight = Transform.multiply(thisTranslateRight, thisScale);
 		var thisTransformLeft = Transform.multiply(thisTranslateLeft, thisScale);
-		iframeTransforms.unshift(thisTransformRight);
-		iframeTransforms.push(thisTransformLeft);
+		browserTransforms.unshift(thisTransformRight);
+		browserTransforms.push(thisTransformLeft);
 	}
 
 	var settings;
 	var browsers = [];
-	var browserModifiers = [];
 	var iframeBrowsingIndex = 0;
-	var middleIframeIndex = Math.floor(iframeTransforms.length / 2);
+	var middleIframeIndex = Math.floor(browserTransforms.length / 2);
 
 	var initSurfaces = function(context) {
-		for (var i=0; i<iframeTransforms.length; i++) {
+		for (var i=0; i<browserTransforms.length; i++) {
 
 			var browser = new Browser(i);
 			browsers.push(browser);
@@ -78,28 +73,28 @@ define(function(require, exports, module) {
 	var resetSurfaces = function() {
 		for (var i=0; i<browsers.length; i++) {
 			browsers[i].surface.setSize([settings.siteWidth, browserHeight]);
-			browsers[i].modifier.setTransform(iframeTransforms[i]);
+			browsers[i].modifier.setTransform(browserTransforms[i]);
 		}
 	};
 
 	var transitionAll = function(index) {
 
-		for (var i=0; i<iframeTransforms.length; i++) {
-			var modulo = utils.positiveModulo(index + i, iframeTransforms.length);
+		for (var i=0; i<browserTransforms.length; i++) {
+			var modulo = utils.positiveModulo(index + i, browserTransforms.length);
 			browsers[i].transitionState = 'moving';
 			browsers[i].postMessage({
 				currentPosition: modulo
 			});
 
 			browsers[i].modifier.setTransform(
-				iframeTransforms[modulo],
+				browserTransforms[modulo],
 				{ duration : transitionDuration, curve: 'easeInOut' },
-				(function(){
+				(function() {
 					var thisBrowser = browsers[i];
-					return function(){
+					return function() {
 						thisBrowser.transitionState = 'stable';
-						thisBrowser.postMessage({});						
-					}
+						thisBrowser.postMessage({});
+					};
 				})()
 			);
 		}
@@ -121,6 +116,7 @@ define(function(require, exports, module) {
 				middleIframeIndex : middleIframeIndex
 			});
 			browsers[originIndex].showIframe();
+			browsers[originIndex].setTitle(e.data.pageTitle);
 		}
 		else if (originPosition === middleIframeIndex) {
 			if (e.data.action === 'mouseover') {
@@ -144,11 +140,11 @@ define(function(require, exports, module) {
 	var setStyles = function() {
 		$('#styler').html([
 			'body {background:' + settings.siteBackground + ';} ',
-			'.iframeContainer, iframe {height:' + iframeHeight + 'px;} ',
+			'.iframeContainer, iframe {height:' + iframeHeight + 'px;} '
 		].join(''));
 	};
 
-	var initEvents = function(){
+	var initEvents = function() {
 		window.addEventListener('message', receiveMessage, false);
 
 		$body.on('submit', '.browserBar form', function(e) {
@@ -156,7 +152,7 @@ define(function(require, exports, module) {
 			var browserSettings = utils.serializeFormToJSON(this);
 			browsers[browserSettings.browserId].setIframeContent(browserSettings.browserAddress);
 		});
-	}
+	};
 
 	var reset = function(theseSettings, context) {
 

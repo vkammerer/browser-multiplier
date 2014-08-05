@@ -7,10 +7,6 @@ define(function(require, exports, module) {
 	var Transform = require('famous/core/Transform');
 	var $ = require('jquery');
 
-	/* Pub / Sub manager */
-
-	var $body = $('body');
-
 	var iframeModifier = new StateModifier({
 		transform: Transform.translate(0,65,0)
 	});
@@ -21,15 +17,14 @@ define(function(require, exports, module) {
 		transform: Transform.translate(0,65,-1)
 	});
 
-	var apiUrl = function(index, href){
+	var apiUrl = function(index, href) {
 		return '/api/?' + $.param({
 			siteIndex : index,
 			siteUrl : href
 		});
-	}
+	};
 
-
-	var Browser = function(index){
+	var Browser = function(index) {
 		this.index = index;
 		this.transitionState = 'stable';
 		this.surface = new ContainerSurface();
@@ -50,7 +45,7 @@ define(function(require, exports, module) {
 						'<input type="hidden" name="browserId" value="' + index + '">',
 						'<input type="text" name="browserAddress">',
 					'</form>',
-				'</div>',
+				'</div>'
 			].join('')
 		});
 
@@ -72,19 +67,24 @@ define(function(require, exports, module) {
 		console.log(this.transitionState);
 		for (var i in [0,1]) {
 			if (iframes[i] && iframes[i].contentWindow) {
-				iframes[i].contentWindow.postMessage(message, '*');			
-			}			
+				iframes[i].contentWindow.postMessage(message, '*');
+			}
 		}
-	}
+	};
 
 	Browser.prototype.showIframe = function() {
 		var iframes = $('.browser' + this.index + ' iframe');
 		for (var i in [0,1]) {
 			if (iframes[i]) {
 				iframes[i].style.visibility = 'visible';
-			}			
+			}
 		}
-	}
+	};
+
+	Browser.prototype.setTitle = function(title) {
+		var titles = $('.browser' + this.index + ' .browserTitleBorder');
+		titles.text(title);
+	};
 
 	Browser.prototype.setIframeContent = function(href) {
 
@@ -93,13 +93,12 @@ define(function(require, exports, module) {
 		thisSurface.setContent([
 			'<div class="iframeContainer">',
 				'<iframe src="' + apiUrl(this.index, href) + '"></iframe>',
-			'</div>',
+			'</div>'
 		].join(''));
 
 		this.surface.add(iframeModifier).add(thisSurface);
 
 	};
-
 
 	Browser.prototype.setPreviewContent = function(href) {
 
@@ -108,14 +107,14 @@ define(function(require, exports, module) {
 		thisSurface.setContent([
 			'<div class="iframeContainer">',
 				'<iframe src="' + apiUrl(this.index, href) + '"></iframe>',
-			'</div>',
+			'</div>'
 		].join(''));
 
 		this.surface.add(iframeTopModifier).add(thisSurface);
 
 	};
 
-	Browser.prototype.removePreview = function(){
+	Browser.prototype.removePreview = function() {
 
 		this.iframeSurfaces[1 - this.currentIframeIndex].setContent('');
 

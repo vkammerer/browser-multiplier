@@ -108,7 +108,10 @@
 
 	window.addEventListener('message', receiveMessage, false);
 
-	messageParent({ action : 'ready' });
+	messageParent({
+		action : 'ready',
+		pageTitle : document.title
+	});
 
 
 })()
