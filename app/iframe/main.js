@@ -87,6 +87,11 @@
 		middleIframeIndex = e.data.middleIframeIndex || middleIframeIndex;
 		transitionState = e.data.transitionState || transitionState;
 
+		console.log('yay');
+		console.log(window.sevenBrowsers.siteIndex);
+		console.log(currentPosition);
+		console.log(middleIframeIndex);
+
 		if (
 			(e.origin !== window.location.origin) ||
 			(typeof(currentPosition) === 'undefined')

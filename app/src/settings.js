@@ -16,8 +16,8 @@ define(function(require, exports, module) {
 
 	var defaults = {
 		siteWidth: '980',
-		siteContentSelector: 'body',
-		siteBackground: 'white'
+		siteContentSelector: 'body'
+//		siteBackground: 'white'
 	};
 
 	/* Formulaire */
@@ -34,10 +34,12 @@ define(function(require, exports, module) {
 				'<label for="siteContentSelector">Content Selector</label>',
 				'<input type="text" name="siteContentSelector" value="' + defaults.siteContentSelector + '">',
 			'</div>',
+/*
 			'<div class="inputContainer">',
 				'<label for="siteBackground">Background</label>',
 				'<input type="text" name="siteBackground" value="' + defaults.siteBackground + '">',
 			'</div>',
+*/
 			'<div class="inputContainer">',
 				'<input type="submit" value="Pimp it">',
 			'</div>',

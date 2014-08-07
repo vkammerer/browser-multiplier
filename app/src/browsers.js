@@ -16,13 +16,26 @@ define(function(require, exports, module) {
 	var interfacePadding = 40;
 	var browserBarHeight = 65;
 	var tabWidth = 980;
-	var translateXRatio = 0.6;
+	var translateXRatio = 1;
 	var transitionDuration = 500;
-	var browserProportions = [
-		0.2,
-		0.2,
-		0.2
-	];
+	var browserProportions = [];
+
+	var numberOfPairOfBrowsers = 3;
+
+	var browserProportions2 = [];
+	var sidePadding = 50;
+
+	var leftSpaceLeft = window.innerWidth - tabWidth - sidePadding * 6;
+
+	var totalSideSpaceRatio = leftSpaceLeft / 2 / tabWidth;
+	var suiteSum = Math.pow(2, numberOfPairOfBrowsers) - 1;
+
+	for (var i = 0; i < numberOfPairOfBrowsers; i++) {
+
+		var thisRatio = totalSideSpaceRatio / suiteSum * Math.pow(2, numberOfPairOfBrowsers - i - 1);
+		browserProportions.push(thisRatio);
+
+	}
 
 	/* Window dimensions */
 
@@ -40,9 +53,9 @@ define(function(require, exports, module) {
 	];
 
 	// @TranslateX : distances on the X axis from the center of the window;
-	var translateX = [tabWidth * (0.5 + browserProportions[0] / 2) + 10];
+	var translateX = [tabWidth * (0.5 + browserProportions[0] / 2) + sidePadding];
 	for (var i = 1; i < browserProportions.length; i++) {
-		translateX[i] = translateX[i-1] + tabWidth * browserProportions[i-1] * translateXRatio;
+		translateX[i] = translateX[i-1] + (tabWidth + sidePadding * 2) * browserProportions[i] * 3 / 2;
 	}
 
 	for (var j = 0; j < browserProportions.length; j++) {
@@ -63,16 +76,16 @@ define(function(require, exports, module) {
 	var initSurfaces = function(context) {
 		for (var i=0; i<browserTransforms.length; i++) {
 
-			var browser = new Browser(i);
+			var browser = new Browser(i, middleIframeIndex);
 			browsers.push(browser);
-			context.add(browser.modifier).add(browser.surface);
+			context.add(browser.modifier).add(browser.containerSurface);
 
 		}
 	};
 
 	var resetSurfaces = function() {
 		for (var i=0; i<browsers.length; i++) {
-			browsers[i].surface.setSize([settings.siteWidth, browserHeight]);
+			browsers[i].containerSurface.setSize([settings.siteWidth, browserHeight]);
 			browsers[i].modifier.setTransform(browserTransforms[i]);
 		}
 	};
@@ -82,9 +95,8 @@ define(function(require, exports, module) {
 		for (var i=0; i<browserTransforms.length; i++) {
 			var modulo = utils.positiveModulo(index + i, browserTransforms.length);
 			browsers[i].transitionState = 'moving';
-			browsers[i].postMessage({
-				currentPosition: modulo
-			});
+			browsers[i].currentPosition = modulo;
+			browsers[i].postMessage();
 
 			browsers[i].modifier.setTransform(
 				browserTransforms[modulo],
@@ -93,12 +105,18 @@ define(function(require, exports, module) {
 					var thisBrowser = browsers[i];
 					return function() {
 						thisBrowser.transitionState = 'stable';
-						thisBrowser.postMessage({});
+						thisBrowser.postMessage();
 					};
 				})()
 			);
 		}
 	};
+
+	$body.on('browserClick', function(e, data){
+		var originPosition = (iframeBrowsingIndex + data.index) % browsers.length;
+		iframeBrowsingIndex = iframeBrowsingIndex + middleIframeIndex - originPosition;
+		transitionAll(iframeBrowsingIndex);
+	});
 
 	var receiveMessage = function(e) {
 
@@ -108,17 +126,19 @@ define(function(require, exports, module) {
 
 		var originIndex = parseInt(e.data.siteIndex);
 		var originPosition = (iframeBrowsingIndex + originIndex) % browsers.length;
-		var nextIframeIndex = browsers.length - 1 - ((iframeBrowsingIndex + browsers.length - middleIframeIndex) % browsers.length);
 
-		if (e.data.action === 'ready') {
-			browsers[originIndex].postMessage({
-				currentPosition: originPosition,
-				middleIframeIndex : middleIframeIndex
-			});
-			browsers[originIndex].showIframe();
-			browsers[originIndex].setTitle(e.data.pageTitle);
+		if (e.data.action === 'bodyclick') {
+			$body.trigger('browserClick', {index : originIndex});
+		}
+		else if (e.data.action === 'ready') {
+			var thisBrowser = browsers[originIndex];
+			thisBrowser.currentPosition = originPosition;
+			thisBrowser.postMessage();
+			thisBrowser.showIframe();
+			thisBrowser.setTitle(e.data.pageTitle);
 		}
 		else if (originPosition === middleIframeIndex) {
+			var nextIframeIndex = browsers.length - 1 - ((iframeBrowsingIndex + browsers.length - middleIframeIndex) % browsers.length);
 			if (e.data.action === 'mouseover') {
 				browsers[nextIframeIndex].setPreviewContent(e.data.href);
 			}
@@ -131,10 +151,7 @@ define(function(require, exports, module) {
 				transitionAll(iframeBrowsingIndex);
 			}
 		}
-		else if (e.data.action === 'bodyclick') {
-			iframeBrowsingIndex = iframeBrowsingIndex + middleIframeIndex - originPosition;
-			transitionAll(iframeBrowsingIndex);
-		}
+
 	};
 
 	var setStyles = function() {
@@ -146,12 +163,6 @@ define(function(require, exports, module) {
 
 	var initEvents = function() {
 		window.addEventListener('message', receiveMessage, false);
-
-		$body.on('submit', '.browserBar form', function(e) {
-			e.preventDefault();
-			var browserSettings = utils.serializeFormToJSON(this);
-			browsers[browserSettings.browserId].setIframeContent(browserSettings.browserAddress);
-		});
 	};
 
 	var reset = function(theseSettings, context) {
@@ -165,7 +176,6 @@ define(function(require, exports, module) {
 
 		resetSurfaces();
 		setStyles();
-		browsers[middleIframeIndex].setIframeContent('');
 
 	};
 

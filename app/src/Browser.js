@@ -6,6 +6,11 @@ define(function(require, exports, module) {
 	var StateModifier = require('famous/modifiers/StateModifier');
 	var Transform = require('famous/core/Transform');
 	var $ = require('jquery');
+	var utils = require('utils');
+
+	/* Pub / Sub manager */
+
+	var $body = $('body');
 
 	var iframeModifier = new StateModifier({
 		transform: Transform.translate(0,65,0)
@@ -24,22 +29,29 @@ define(function(require, exports, module) {
 		});
 	};
 
-	var Browser = function(index) {
+	var Browser = function(index, middleIframeIndex) {
 		this.index = index;
+		this.currentPosition = index;
+		this.middleIframeIndex = middleIframeIndex;
 		this.transitionState = 'stable';
-		this.surface = new ContainerSurface();
+		this.containerSurface = new ContainerSurface();
 		this.modifier = new StateModifier({
 			origin: [0.5, 0.5]
 		});
 
-		this.surface.addClass('browser');
-		this.surface.addClass('browser' + this.index);
+		this.containerSurface.addClass('browser');
+		this.containerSurface.addClass('browser' + this.index);
 
 		/* Bar */
 		var barSurface = new Surface({
 			content: [
 				'<div class="browserBar">',
-					'<div class="browserTitle"><div class="browserTitleBorder"></div></div>',
+					'<div class="browserTitle">',
+						'<div class="browserTitleBorder">',
+							'<img>',
+							'<span></span>',
+						'</div>',
+					'</div>',
 					'<div class="browserTitleWhite"></div>',
 					'<form>',
 						'<input type="hidden" name="browserId" value="' + index + '">',
@@ -49,87 +61,135 @@ define(function(require, exports, module) {
 			].join('')
 		});
 
-		this.surface.add(barSurface);
+		this.containerSurface.add(barSurface);
 
 		/* Iframes */
-		this.iframeData = {};
 		this.currentIframeIndex = 0;
 		this.iframeSurfaces = [
-			new Surface(),
-			new Surface()
+			new Surface({
+				content: [
+					'<div class="iframeContainer">',
+						'<iframe></iframe>',
+					'</div>'
+				].join('')
+			}),
+			new Surface({
+				content: [
+					'<div class="iframeContainer">',
+						'<iframe></iframe>',
+					'</div>'
+				].join('')
+			})
 		];
+
+		this.containerSurface.add(iframeModifier).add(this.iframeSurfaces[0]);
+		this.containerSurface.add(iframeBottomModifier).add(this.iframeSurfaces[1]);
+
+		var _self = this;
+
+		window.requestAnimationFrame(function(){
+			_self.$browser = $('.browser' + _self.index);
+			_self.$favicon = _self.$browser.find('.browserTitleBorder img');
+			_self.$title = _self.$browser.find('.browserTitleBorder span');
+			_self.$iframes = _self.$browser.find('iframe');
+
+			_self.$browser.data('position', _self.index);
+
+			_self.$browser.on('submit', '.browserBar form', function(e) {
+				e.preventDefault();
+				var browserSettings = utils.serializeFormToJSON(this);
+				_self.setFavicon(browserSettings.browserAddress);
+				_self.setIframeContent(browserSettings.browserAddress);
+			});
+			_self.$browser.on('click', function(e) {
+				if (e.target.tagName === 'INPUT') return false;
+				var originIndex = parseInt($(this).data('position'));
+				$body.trigger('browserClick', {index:originIndex})
+			});
+
+		})
 
 	};
 
-	Browser.prototype.postMessage = function(message) {
-		var iframes = $('.browser' + this.index + ' iframe');
-		message.transitionState = this.transitionState;
-		console.log(this.transitionState);
+	Browser.prototype.postMessage = function() {
+		
+		var message = {
+			transitionState : this.transitionState,
+			middleIframeIndex : this.middleIframeIndex,
+			currentPosition : this.currentPosition
+		}
+
 		for (var i in [0,1]) {
-			if (iframes[i] && iframes[i].contentWindow) {
-				iframes[i].contentWindow.postMessage(message, '*');
+			if (this.$iframes[i] && this.$iframes[i].contentWindow) {
+				this.$iframes[i].contentWindow.postMessage(message, '*');
 			}
 		}
 	};
 
 	Browser.prototype.showIframe = function() {
-		var iframes = $('.browser' + this.index + ' iframe');
 		for (var i in [0,1]) {
-			if (iframes[i]) {
-				iframes[i].style.visibility = 'visible';
+			if (this.$iframes[i]) {
+				this.$iframes[i].style.visibility = 'visible';
 			}
 		}
 	};
 
 	Browser.prototype.setTitle = function(title) {
-		var titles = $('.browser' + this.index + ' .browserTitleBorder');
-		titles.text(title);
+		console.log(this.$title);
+		this.$title.text(title);
 	};
+
+	Browser.prototype.setFavicon = function(href) {
+		this.$favicon.attr('src', 'http://www.google.com/s2/favicons?domain=' + href);
+	};
+
 
 	Browser.prototype.setIframeContent = function(href) {
 
-		var thisSurface = this.iframeSurfaces[this.currentIframeIndex];
+		var _self = this;
 
-		thisSurface.setContent([
-			'<div class="iframeContainer">',
-				'<iframe src="' + apiUrl(this.index, href) + '"></iframe>',
-			'</div>'
-		].join(''));
+		window.requestAnimationFrame(function(){
+			var _selfSurface = _self.iframeSurfaces[_self.currentIframeIndex];
 
-		this.surface.add(iframeModifier).add(thisSurface);
+			_self.$iframes[_self.currentIframeIndex].src = apiUrl(_self.index, href);
+
+			_self.containerSurface.add(iframeModifier).add(_selfSurface);
+		})
 
 	};
 
 	Browser.prototype.setPreviewContent = function(href) {
 
-		var thisSurface = this.iframeSurfaces[1 - this.currentIframeIndex];
+		var _self = this;
 
-		thisSurface.setContent([
-			'<div class="iframeContainer">',
-				'<iframe src="' + apiUrl(this.index, href) + '"></iframe>',
-			'</div>'
-		].join(''));
+		window.requestAnimationFrame(function(){
+			var _selfSurface = _self.iframeSurfaces[1 - _self.currentIframeIndex];
 
-		this.surface.add(iframeTopModifier).add(thisSurface);
+			console.log(_self.$iframes[1 - _self.currentIframeIndex]);
+
+			_self.$iframes[1 - _self.currentIframeIndex].src = apiUrl(_self.index, href);
+
+			_self.containerSurface.add(iframeTopModifier).add(_selfSurface);
+		})
 
 	};
 
 	Browser.prototype.removePreview = function() {
 
-		this.iframeSurfaces[1 - this.currentIframeIndex].setContent('');
+		this.$iframes[1 - this.currentIframeIndex].src = '';
 
-		this.surface.add(iframeModifier).add(this.iframeSurfaces[this.currentIframeIndex]);
-		this.surface.add(iframeBottomModifier).add(this.iframeSurfaces[1 - this.currentIframeIndex]);
+		this.containerSurface.add(iframeModifier).add(this.iframeSurfaces[this.currentIframeIndex]);
+		this.containerSurface.add(iframeBottomModifier).add(this.iframeSurfaces[1 - this.currentIframeIndex]);
 
 	};
 
 	Browser.prototype.setPreviewAsIframeContent = function() {
 
-		this.surface.add(iframeModifier).add(this.iframeSurfaces[1 - this.currentIframeIndex]);
-		this.surface.add(iframeBottomModifier).add(this.iframeSurfaces[this.currentIframeIndex]);
+		this.containerSurface.add(iframeModifier).add(this.iframeSurfaces[1 - this.currentIframeIndex]);
+		this.containerSurface.add(iframeBottomModifier).add(this.iframeSurfaces[this.currentIframeIndex]);
 
 		this.currentIframeIndex = 1 - this.currentIframeIndex;
-		this.iframeSurfaces[1 - this.currentIframeIndex].setContent('');
+		this.$iframes[1 - this.currentIframeIndex].src = '';
 
 	};
 
