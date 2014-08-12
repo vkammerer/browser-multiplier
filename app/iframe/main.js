@@ -1,14 +1,14 @@
 (function() {
 
 	var	currentPosition,
-		middleIframeIndex,
+		browserPairs,
 		transitionState;
 	var $body = document.getElementsByTagName('body')[0];
 	var $a = document.getElementsByTagName('a');
 	var $inactiveLayer = document.getElementById('inactiveLayer');
 
 	var messageParent = function(message){
-		message.siteIndex = window.sevenBrowsers.siteIndex;
+		message.browserIndex = window.sevenBrowsers.browserIndex;
 		window.parent.postMessage(message, '*');
 	}
 
@@ -69,7 +69,7 @@
 		Inactive layer click
 	*/
 	var onInactiveLayerClick = function(e){
-		if (currentPosition !== middleIframeIndex) {
+		if (currentPosition !== browserPairs) {
 			messageParent({
 				action:'bodyclick',
 			});
@@ -84,13 +84,8 @@
 	var receiveMessage = function(e) {
 
 		currentPosition = e.data.currentPosition || currentPosition;
-		middleIframeIndex = e.data.middleIframeIndex || middleIframeIndex;
+		browserPairs = e.data.browserPairs || browserPairs;
 		transitionState = e.data.transitionState || transitionState;
-
-		console.log('yay');
-		console.log(window.sevenBrowsers.siteIndex);
-		console.log(currentPosition);
-		console.log(middleIframeIndex);
 
 		if (
 			(e.origin !== window.location.origin) ||
@@ -101,7 +96,7 @@
 
 		else if (
 			(transitionState === 'stable') &&
-			(currentPosition === middleIframeIndex)
+			(currentPosition === browserPairs)
 		){
 			$body.classList.remove('inactive');
 		}

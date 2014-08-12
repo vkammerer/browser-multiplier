@@ -4,6 +4,13 @@ var apiServer = require('../api/server');
 
 module.exports =  function (grunt) {
   'use strict';
+  var apiMiddleware = function(connect, options, middlewares) {
+    middlewares.push(function(req, res, next) {
+      if (!req.url.match(/^\/api\//)) return next();
+      apiServer.handleRequest(req, res, next);
+    });
+    return middlewares;
+  };
   return {
     options: {
       port: grunt.option('port') || 1337,
@@ -18,20 +25,15 @@ module.exports =  function (grunt) {
           '.tmp',
           '<%= config.app %>'
         ],
-        middleware: function(connect, options, middlewares) {
-          middlewares.push(function(req, res, next) {
-            if (!req.url.match(/^\/api\//)) return next();
-            apiServer.handleRequest(req, res, next);
-          });
-          return middlewares;
-        }
+        middleware: apiMiddleware
       }
     },
     dist: {
       options: {
         open: true,
         base: '<%= config.dist %>',
-        livereload: false
+        livereload: false,
+        middleware: apiMiddleware
       }
     }
   };

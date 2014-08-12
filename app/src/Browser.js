@@ -22,17 +22,14 @@ define(function(require, exports, module) {
 		transform: Transform.translate(0,65,-1)
 	});
 
-	var apiUrl = function(index, href) {
-		return '/api/?' + $.param({
-			siteIndex : index,
-			siteUrl : href
-		});
-	};
+	var Browser = function(options) {
 
-	var Browser = function(index, middleIframeIndex) {
-		this.index = index;
-		this.currentPosition = index;
-		this.middleIframeIndex = middleIframeIndex;
+		this.browserIndex = options.browserIndex;
+		this.contentSelector = options.contentSelector;
+
+		this.browserPairs = options.browserPairs;
+		this.currentPosition = this.browserIndex;
+
 		this.transitionState = 'stable';
 		this.containerSurface = new ContainerSurface();
 		this.modifier = new StateModifier({
@@ -40,7 +37,7 @@ define(function(require, exports, module) {
 		});
 
 		this.containerSurface.addClass('browser');
-		this.containerSurface.addClass('browser' + this.index);
+		this.containerSurface.addClass('browser' + this.browserIndex);
 
 		/* Bar */
 		var barSurface = new Surface({
@@ -54,7 +51,7 @@ define(function(require, exports, module) {
 					'</div>',
 					'<div class="browserTitleWhite"></div>',
 					'<form>',
-						'<input type="hidden" name="browserId" value="' + index + '">',
+						'<input type="hidden" name="browserId" value="' + this.browserIndex + '">',
 						'<input type="text" name="browserAddress">',
 					'</form>',
 				'</div>'
@@ -87,37 +84,48 @@ define(function(require, exports, module) {
 
 		var _self = this;
 
-		window.requestAnimationFrame(function(){
-			_self.$browser = $('.browser' + _self.index);
+		window.requestAnimationFrame(function() {
+			_self.$browser = $('.browser' + _self.browserIndex);
 			_self.$favicon = _self.$browser.find('.browserTitleBorder img');
 			_self.$title = _self.$browser.find('.browserTitleBorder span');
 			_self.$iframes = _self.$browser.find('iframe');
 
-			_self.$browser.data('position', _self.index);
+			_self.$browser.data('position', _self.browserIndex);
 
 			_self.$browser.on('submit', '.browserBar form', function(e) {
 				e.preventDefault();
 				var browserSettings = utils.serializeFormToJSON(this);
 				_self.setFavicon(browserSettings.browserAddress);
-				_self.setIframeContent(browserSettings.browserAddress);
+				_self.setContent(browserSettings.browserAddress);
 			});
 			_self.$browser.on('click', function(e) {
-				if (e.target.tagName === 'INPUT') return false;
+				if (e.target.tagName === 'INPUT') {
+					return false;
+				}
 				var originIndex = parseInt($(this).data('position'));
-				$body.trigger('browserClick', {index:originIndex})
+				$body.trigger('browserClick', {browserIndex:originIndex});
 			});
 
-		})
+		});
 
 	};
 
+	Browser.prototype.apiUrl = function(href) {
+		return '/api/?' + $.param({
+			browserIndex : this.browserIndex,
+			contentSelector : this.contentSelector,
+			siteUrl : href
+		});
+	};
+
 	Browser.prototype.postMessage = function() {
-		
+
 		var message = {
+			browserIndex : this.browserIndex,
 			transitionState : this.transitionState,
-			middleIframeIndex : this.middleIframeIndex,
+			browserPairs : this.browserPairs,
 			currentPosition : this.currentPosition
-		}
+		};
 
 		for (var i in [0,1]) {
 			if (this.$iframes[i] && this.$iframes[i].contentWindow) {
@@ -143,34 +151,31 @@ define(function(require, exports, module) {
 		this.$favicon.attr('src', 'http://www.google.com/s2/favicons?domain=' + href);
 	};
 
-
-	Browser.prototype.setIframeContent = function(href) {
+	Browser.prototype.setContent = function(href) {
 
 		var _self = this;
 
-		window.requestAnimationFrame(function(){
+		window.requestAnimationFrame(function() {
 			var _selfSurface = _self.iframeSurfaces[_self.currentIframeIndex];
 
-			_self.$iframes[_self.currentIframeIndex].src = apiUrl(_self.index, href);
+			_self.$iframes[_self.currentIframeIndex].src = _self.apiUrl(href);
 
 			_self.containerSurface.add(iframeModifier).add(_selfSurface);
-		})
+		});
 
 	};
 
-	Browser.prototype.setPreviewContent = function(href) {
+	Browser.prototype.setPreview = function(href) {
 
 		var _self = this;
 
-		window.requestAnimationFrame(function(){
+		window.requestAnimationFrame(function() {
 			var _selfSurface = _self.iframeSurfaces[1 - _self.currentIframeIndex];
 
-			console.log(_self.$iframes[1 - _self.currentIframeIndex]);
-
-			_self.$iframes[1 - _self.currentIframeIndex].src = apiUrl(_self.index, href);
+			_self.$iframes[1 - _self.currentIframeIndex].src = _self.apiUrl(href);
 
 			_self.containerSurface.add(iframeTopModifier).add(_selfSurface);
-		})
+		});
 
 	};
 
@@ -183,7 +188,7 @@ define(function(require, exports, module) {
 
 	};
 
-	Browser.prototype.setPreviewAsIframeContent = function() {
+	Browser.prototype.setPreviewAsContent = function() {
 
 		this.containerSurface.add(iframeModifier).add(this.iframeSurfaces[1 - this.currentIframeIndex]);
 		this.containerSurface.add(iframeBottomModifier).add(this.iframeSurfaces[this.currentIframeIndex]);

@@ -9,7 +9,7 @@ var formatIframe = function(settings, req, html) {
 	var requestOrigin = 'http://' + req.headers.host;
 
 	var $template = $.load(html);
-	var $content = $template(settings.siteContentSelector).html();
+	var $content = $template(settings.contentSelector).html();
 
 	/* Head */
 	$template('head').prepend([
@@ -21,7 +21,7 @@ var formatIframe = function(settings, req, html) {
 	$template('body').html([
 		'<div id="inactiveLayer"></div>',
 		'<script>window.sevenBrowsers = {',
-			'siteIndex :' + settings.siteIndex + ',',
+			'browserIndex :' + settings.browserIndex + ',',
 			'siteUrl :"' + settings.siteUrl + '"',
 		'};</script>',
 		'<script src="' + requestOrigin + '/iframe/main.js"></script>'
@@ -41,15 +41,17 @@ var handleRequest = function (req, res, next) {
 	}
 
 	var parsedUrl = url.parse(req.url, true, true);
-	var siteIndex = parsedUrl.query['siteIndex'];
+	var browserIndex = parsedUrl.query['browserIndex'];
 	var siteUrl = parsedUrl.query['siteUrl'];
-	var siteContentSelector = parsedUrl.query['siteContentSelector'] || 'body';
+	var contentSelector = parsedUrl.query['contentSelector'] || 'body';
+
+
 
 	/* Check if the "siteUrl" parameter is properly defined */
 
-	if (typeof(siteIndex) === 'undefined') {
+	if (typeof(browserIndex) === 'undefined') {
 		res.statusCode = 400;
-		return res.end('please provide a correct "siteIndex" parameter');
+		return res.end('please provide a correct "browserIndex" parameter');
 	}
 
 	if (!validator.isURL(siteUrl)) {
@@ -65,9 +67,9 @@ var handleRequest = function (req, res, next) {
 		else {
 			res.writeHead(200, { 'Cache-Control': 'max-age=3600' });
 			return res.end(formatIframe({
-				siteIndex : siteIndex,
+				browserIndex : browserIndex,
 				siteUrl : siteUrl,
-				siteContentSelector : siteContentSelector
+				contentSelector : contentSelector
 			}, req, body));
 		}
 	})

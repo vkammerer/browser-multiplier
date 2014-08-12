@@ -4,105 +4,140 @@ define(function(require, exports, module) {
 	var Transform = require('famous/core/Transform');
 	var utils = require('utils');
 	var $ = require('jquery');
-
 	var Browser = require('Browser');
 
 	/* Pub / Sub manager */
 
 	var $body = $('body');
 
-	/* Custom dimensions */
-
-	var interfacePadding = 40;
-	var browserBarHeight = 65;
-	var tabWidth = 980;
-	var translateXRatio = 1;
-	var transitionDuration = 500;
-	var browserProportions = [];
-
-	var numberOfPairOfBrowsers = 3;
-
-	var browserProportions2 = [];
-	var sidePadding = 50;
-
-	var leftSpaceLeft = window.innerWidth - tabWidth - sidePadding * 6;
-
-	var totalSideSpaceRatio = leftSpaceLeft / 2 / tabWidth;
-	var suiteSum = Math.pow(2, numberOfPairOfBrowsers) - 1;
-
-	for (var i = 0; i < numberOfPairOfBrowsers; i++) {
-
-		var thisRatio = totalSideSpaceRatio / suiteSum * Math.pow(2, numberOfPairOfBrowsers - i - 1);
-		browserProportions.push(thisRatio);
-
-	}
-
 	/* Window dimensions */
 
-	var bodyHeight = $body.height();
+	var Browsers = function(options) {
 
-	var browserHeight = bodyHeight -  2 * interfacePadding;
-	var iframeHeight = browserHeight - browserBarHeight;
-	var translateY = browserHeight / 6;
+		var _self = this;
 
-	/* Transformations  */
+		this.browserBarHeight = 65;
 
-	// middle Browser remains unchanged
-	var browserTransforms = [
-		Transform.multiply(Transform.translate(0, 0, 0), Transform.scale(1, 1, 1))
-	];
+		this.context = options.context;
+		this.browserPairs = options.browserPairs;
+		this.browserWidth = options.browserWidth;
+		this.contentSelector = options.contentSelector;
+		this.transitionDuration = options.transitionDuration;
+		this.interfacePadding = options.interfacePadding;
+		this.sidePadding = options.sidePadding;
+		this.superpositionRatio = options.superpositionRatio;
 
-	// @TranslateX : distances on the X axis from the center of the window;
-	var translateX = [tabWidth * (0.5 + browserProportions[0] / 2) + sidePadding];
-	for (var i = 1; i < browserProportions.length; i++) {
-		translateX[i] = translateX[i-1] + (tabWidth + sidePadding * 2) * browserProportions[i] * 3 / 2;
-	}
+		this.browsers = [];
+		this.browsingIndex = 0;
+		this.browserTransforms = this.getBrowserTransforms();
 
-	for (var j = 0; j < browserProportions.length; j++) {
-		var thisScale =  Transform.scale(browserProportions[j], browserProportions[j], browserProportions[j]);
-		var thisTranslateRight = Transform.translate(translateX[j], translateY, -j-1);
-		var thisTranslateLeft = Transform.translate(-translateX[j], translateY, -j-1);
-		var thisTransformRight = Transform.multiply(thisTranslateRight, thisScale);
-		var thisTransformLeft = Transform.multiply(thisTranslateLeft, thisScale);
-		browserTransforms.unshift(thisTransformRight);
-		browserTransforms.push(thisTransformLeft);
-	}
+		for (var i=0; i<this.getNumberOfBrowsers(); i++) {
 
-	var settings;
-	var browsers = [];
-	var iframeBrowsingIndex = 0;
-	var middleIframeIndex = Math.floor(browserTransforms.length / 2);
+			var browser = new Browser({
+				browserIndex: i,
+				contentSelector : this.contentSelector,
+				browserPairs : this.browserPairs
+			});
 
-	var initSurfaces = function(context) {
-		for (var i=0; i<browserTransforms.length; i++) {
+			browser.containerSurface.setSize([this.browserWidth, this.getBrowserHeight()]);
+			browser.modifier.setTransform(this.browserTransforms[i]);
 
-			var browser = new Browser(i, middleIframeIndex);
-			browsers.push(browser);
-			context.add(browser.modifier).add(browser.containerSurface);
+			this.browsers.push(browser);
+			this.context.add(browser.modifier).add(browser.containerSurface);
 
 		}
+
+		window.addEventListener('message', function(e) {
+			_self.receiveMessage(e);
+		}, false);
+
+		$body.on('browserClick', function(e, data) {
+			_self.browsingIndex = _self.browsingIndex + _self.browserPairs - _self.getBrowserPosition(data.browserIndex);
+			_self.transitionAll();
+		});
+
 	};
 
-	var resetSurfaces = function() {
-		for (var i=0; i<browsers.length; i++) {
-			browsers[i].containerSurface.setSize([settings.siteWidth, browserHeight]);
-			browsers[i].modifier.setTransform(browserTransforms[i]);
+	Browsers.prototype.getBrowserPosition = function(browserIndex) {
+		return (this.browsingIndex + browserIndex) % this.browsers.length;
+	};
+
+	Browsers.prototype.getBrowserHeight = function() {
+		var bodyHeight = $body.height();
+		var browserHeight = bodyHeight -  2 * this.interfacePadding;
+		return browserHeight;
+	};
+
+	Browsers.prototype.getNumberOfBrowsers = function() {
+		return this.browserPairs * 2 + 1;
+	};
+
+	Browsers.prototype.getBrowserTransforms = function() {
+
+		/* Browser size proportionnally to the main browser  */
+
+		var largestDivider = Math.pow(2, this.browserPairs) - 1;
+
+		var sideSpaceLeft = (window.innerWidth - this.browserWidth - this.sidePadding * 4) / 2;
+		var sideSpaceRatio = sideSpaceLeft / this.browserWidth;
+
+		var browserProportions = [];
+		for (var h = 0; h < this.browserPairs; h++) {
+			browserProportions[h] = sideSpaceRatio / largestDivider * Math.pow(2, this.browserPairs - h - 1) * this.superpositionRatio;
 		}
+
+		/*
+			@noSuperpositionRatioTranslateX:
+				Array of distances on the X axis from the center of the window
+				if browsers didnt have a superpositionRatio property;
+			@TranslateX:
+				Array of distances on the X axis from the center of the window;
+		*/
+		var noSuperpositionRatioTranslateX = [this.browserWidth * (0.5 + browserProportions[0] / 2 / this.superpositionRatio) + this.sidePadding];
+		var translateX = [this.browserWidth * (0.5 + browserProportions[0] / 2) + this.sidePadding];
+		for (var i = 1; i < browserProportions.length; i++) {
+			var noSuperpositionRatioWidth = this.browserWidth * browserProportions[i] / this.superpositionRatio;
+			noSuperpositionRatioTranslateX[i] = noSuperpositionRatioTranslateX[i-1] + noSuperpositionRatioWidth * 3 / 2;
+			var thisWidth = this.browserWidth * browserProportions[i];
+			var widthDifference = (thisWidth - noSuperpositionRatioWidth) / 2;
+			translateX[i] = noSuperpositionRatioTranslateX[i] - widthDifference;
+		}
+
+		var translateY = this.getBrowserHeight() / 6;
+
+		var theseBrowserTransforms = [
+			Transform.multiply(Transform.translate(0, 0, 0), Transform.scale(1, 1, 1))
+		];
+		for (var j = 0; j < browserProportions.length; j++) {
+			var thisScale =  Transform.scale(browserProportions[j], browserProportions[j], browserProportions[j]);
+			var thisTranslateRight = Transform.translate(translateX[j], translateY, -j-1);
+			var thisTranslateLeft = Transform.translate(-translateX[j], translateY, -j-1);
+			var thisTransformRight = Transform.multiply(thisTranslateRight, thisScale);
+			var thisTransformLeft = Transform.multiply(thisTranslateLeft, thisScale);
+			theseBrowserTransforms.unshift(thisTransformRight);
+			theseBrowserTransforms.push(thisTransformLeft);
+		}
+		return theseBrowserTransforms;
 	};
 
-	var transitionAll = function(index) {
+	Browsers.prototype.transitionAll = function() {
 
-		for (var i=0; i<browserTransforms.length; i++) {
-			var modulo = utils.positiveModulo(index + i, browserTransforms.length);
-			browsers[i].transitionState = 'moving';
-			browsers[i].currentPosition = modulo;
-			browsers[i].postMessage();
+		var _self = this;
 
-			browsers[i].modifier.setTransform(
-				browserTransforms[modulo],
-				{ duration : transitionDuration, curve: 'easeInOut' },
+		var numberOfBrowsers = this.getNumberOfBrowsers();
+
+		for (var i=0; i<numberOfBrowsers; i++) {
+
+			var modulo = utils.positiveModulo(_self.browsingIndex + i, numberOfBrowsers);
+			this.browsers[i].transitionState = 'moving';
+			this.browsers[i].currentPosition = modulo;
+			this.browsers[i].postMessage();
+
+			this.browsers[i].modifier.setTransform(
+				this.browserTransforms[modulo],
+				{ duration : this.transitionDuration, curve: 'easeInOut' },
 				(function() {
-					var thisBrowser = browsers[i];
+					var thisBrowser = _self.browsers[i];
 					return function() {
 						thisBrowser.transitionState = 'stable';
 						thisBrowser.postMessage();
@@ -112,75 +147,42 @@ define(function(require, exports, module) {
 		}
 	};
 
-	$body.on('browserClick', function(e, data){
-		var originPosition = (iframeBrowsingIndex + data.index) % browsers.length;
-		iframeBrowsingIndex = iframeBrowsingIndex + middleIframeIndex - originPosition;
-		transitionAll(iframeBrowsingIndex);
-	});
-
-	var receiveMessage = function(e) {
+	Browsers.prototype.receiveMessage = function(e) {
 
 		if (e.origin !== window.location.origin) {
 			return false;
 		}
 
-		var originIndex = parseInt(e.data.siteIndex);
-		var originPosition = (iframeBrowsingIndex + originIndex) % browsers.length;
+		var originIndex = parseInt(e.data.browserIndex);
+		var originPosition = this.getBrowserPosition(originIndex);
 
 		if (e.data.action === 'bodyclick') {
-			$body.trigger('browserClick', {index : originIndex});
+			$body.trigger('browserClick', {browserIndex : originIndex});
 		}
 		else if (e.data.action === 'ready') {
-			var thisBrowser = browsers[originIndex];
+			var thisBrowser = this.browsers[originIndex];
 			thisBrowser.currentPosition = originPosition;
 			thisBrowser.postMessage();
 			thisBrowser.showIframe();
 			thisBrowser.setTitle(e.data.pageTitle);
 		}
-		else if (originPosition === middleIframeIndex) {
-			var nextIframeIndex = browsers.length - 1 - ((iframeBrowsingIndex + browsers.length - middleIframeIndex) % browsers.length);
+		else if (originPosition === this.browserPairs) {
+			var nextIframeIndex = this.browsers.length - 1 - ((this.browsingIndex + this.browsers.length - this.browserPairs) % this.browsers.length);
 			if (e.data.action === 'mouseover') {
-				browsers[nextIframeIndex].setPreviewContent(e.data.href);
+				this.browsers[nextIframeIndex].setPreview(e.data.href);
 			}
 			else if (e.data.action === 'mouseout') {
-				browsers[nextIframeIndex].removePreview();
+				this.browsers[nextIframeIndex].removePreview();
 			}
 			else if (e.data.action === 'click') {
-				iframeBrowsingIndex++;
-				browsers[nextIframeIndex].setPreviewAsIframeContent();
-				transitionAll(iframeBrowsingIndex);
+				this.browsingIndex++;
+				this.browsers[nextIframeIndex].setPreviewAsContent();
+				this.transitionAll();
 			}
 		}
 
 	};
 
-	var setStyles = function() {
-		$('#styler').html([
-			'body {background:' + settings.siteBackground + ';} ',
-			'.iframeContainer, iframe {height:' + iframeHeight + 'px;} '
-		].join(''));
-	};
-
-	var initEvents = function() {
-		window.addEventListener('message', receiveMessage, false);
-	};
-
-	var reset = function(theseSettings, context) {
-
-		settings = theseSettings;
-
-		if (browsers.length === 0) {
-			initSurfaces(context);
-			initEvents();
-		}
-
-		resetSurfaces();
-		setStyles();
-
-	};
-
-	return {
-		reset: reset
-	};
+	return Browsers;
 
 });

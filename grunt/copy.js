@@ -8,6 +8,7 @@ module.exports = {
       dest: '<%= config.dist %>',
       src: [
         'content/**/**.*',
+        'iframe/**/**.*',
         '.htaccess',
         'images/{,*/}*.webp',
         // '{,*/}*.html',
