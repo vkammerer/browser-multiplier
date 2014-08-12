@@ -9,4 +9,4 @@ var apiMiddleware = function(req, res, next) {
 connect()
     .use(connect.static('dist'))
 		.use(apiMiddleware)
-		.listen(8080);
+		.listen(process.env.PORT || 3000);
