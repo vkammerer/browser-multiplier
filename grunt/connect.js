@@ -1,13 +1,13 @@
 // The actual grunt server settings
 
-var apiServer = require('../api/server');
+var serverApi = require('../server/api');
 
 module.exports =  function (grunt) {
   'use strict';
   var apiMiddleware = function(connect, options, middlewares) {
     middlewares.push(function(req, res, next) {
       if (!req.url.match(/^\/api\//)) return next();
-      apiServer.handleRequest(req, res, next);
+      serverApi.handleRequest(req, res, next);
     });
     return middlewares;
   };
