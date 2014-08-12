@@ -39,7 +39,8 @@
     "time-grunt": "^0.4.0"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "start": "node server/app.js"
   },
   "dependencies": {
     "cheerio": "~0.17.0",
