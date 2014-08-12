@@ -9,4 +9,4 @@ var apiMiddleware = function(req, res, next) {
 connect()
     .use(connect.static('dist'))
 		.use(apiMiddleware)
-		.listen(1337);
+		.listen(8080);
