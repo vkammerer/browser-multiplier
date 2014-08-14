@@ -44,8 +44,8 @@
   },
   "dependencies": {
     "cheerio": "~0.17.0",
-    "request": "~2.39.0",
-    "validator": "~3.16.1",
+    "request": "~2.40.0",
+    "validator": "~3.17.0",
     "connect": "~2.25.5"
   }
 }
