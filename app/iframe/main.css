@@ -1,6 +1,7 @@
 html::-webkit-scrollbar {
 	display: none !important
 }
+
 #inactiveLayer {
 	display:none;
 	position: fixed;
@@ -10,6 +11,7 @@ html::-webkit-scrollbar {
 	right: 0;
 	bottom: 0;
 }
+
 body.inactive #inactiveLayer {
 	display:block;
 }

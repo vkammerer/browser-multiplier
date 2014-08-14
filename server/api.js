@@ -1,8 +1,10 @@
-var fs = require('fs'),
-	url = require('url'),
-	request = require('request'),
-	$ = require('cheerio'),
-	validator = require('validator');
+/*global module*/
+
+var fs = require('fs');
+var url = require('url');
+var request = require('request');
+var $ = require('cheerio');
+var validator = require('validator');
 
 var formatIframe = function(settings, req, html) {
 
@@ -13,7 +15,7 @@ var formatIframe = function(settings, req, html) {
 
 	/* Head */
 	$template('head').prepend([
-		'<base href="' + settings.siteUrl + '">',
+		'<base href="' + settings.pageUrl + '">',
 		'<link rel="stylesheet" type="text/css" href="' + requestOrigin + '/iframe/main.css" />'
 	].join(''));
 
@@ -22,7 +24,8 @@ var formatIframe = function(settings, req, html) {
 		'<div id="inactiveLayer"></div>',
 		'<script>window.sevenBrowsers = {',
 			'browserIndex :' + settings.browserIndex + ',',
-			'siteUrl :"' + settings.siteUrl + '"',
+			'iframeIndex :' + settings.iframeIndex + ',',
+			'pageUrl :"' + settings.pageUrl + '"',
 		'};</script>',
 		'<script src="' + requestOrigin + '/iframe/main.js"></script>'
 	].join(''));
@@ -30,9 +33,9 @@ var formatIframe = function(settings, req, html) {
 
 	return $template.html();
 
-}
+};
 
-var handleRequest = function (req, res, next) {
+var handleRequest = function(req, res, next) {
 
 	/* Check if this is a call to the API */
 
@@ -41,25 +44,29 @@ var handleRequest = function (req, res, next) {
 	}
 
 	var parsedUrl = url.parse(req.url, true, true);
-	var browserIndex = parsedUrl.query['browserIndex'];
-	var siteUrl = parsedUrl.query['siteUrl'];
-	var contentSelector = parsedUrl.query['contentSelector'] || 'body';
+	var browserIndex = parsedUrl.query.browserIndex;
+	var iframeIndex = parsedUrl.query.iframeIndex;
+	var pageUrl = parsedUrl.query.pageUrl;
+	var contentSelector = parsedUrl.query.contentSelector || 'body';
 
-
-
-	/* Check if the "siteUrl" parameter is properly defined */
+	/* Check if the "pageUrl" parameter is properly defined */
 
 	if (typeof(browserIndex) === 'undefined') {
 		res.statusCode = 400;
 		return res.end('please provide a correct "browserIndex" parameter');
 	}
 
-	if (!validator.isURL(siteUrl)) {
+	if (typeof(iframeIndex) === 'undefined') {
 		res.statusCode = 400;
-		return res.end('please provide a correct "siteUrl" parameter');
+		return res.end('please provide a correct "iframeIndex" parameter');
 	}
 
-	request(siteUrl, function(error, response, body){
+	if (!validator.isURL(pageUrl)) {
+		res.statusCode = 400;
+		return res.end('please provide a correct "pageUrl" parameter');
+	}
+
+	request(pageUrl, function(error, response, body) {
 		if (error) {
 			res.statusCode = 400;
 			return res.end(error);
@@ -68,13 +75,14 @@ var handleRequest = function (req, res, next) {
 			res.writeHead(200, { 'Cache-Control': 'max-age=3600' });
 			return res.end(formatIframe({
 				browserIndex : browserIndex,
-				siteUrl : siteUrl,
+				iframeIndex : iframeIndex,
+				pageUrl : pageUrl,
 				contentSelector : contentSelector
 			}, req, body));
 		}
-	})
-}
+	});
+};
 
 module.exports = {
 	handleRequest: handleRequest
-}
+};

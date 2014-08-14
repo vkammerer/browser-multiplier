@@ -1,34 +1,36 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<title>Seven browsers</title>
+		<title>Browser Multiplier</title>
 		<meta name="viewport" content="" id="myViewport">
 		<meta name="mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
-		
+
 		<!-- build:css(app/) css/famous.css -->
 		<link rel="stylesheet" type="text/css" href="lib/famous/core/famous.css" />
 		<!-- endbuild -->
-		
+
 		<!-- build:css(app/) css/app.css -->
-		<link rel="stylesheet" type="text/css" href="styles/app.css" />
+		<link rel="stylesheet" type="text/css" href="styles/base.css" />
+		<link rel="stylesheet" type="text/css" href="styles/settings.css" />
+		<link rel="stylesheet" type="text/css" href="styles/browsers.css" />
 		<!-- bower:css -->
 		<!-- endbower -->
 		<!-- endbuild -->
 
 		<style id="styler"></style>
-		
+
 		<!-- build:js(app/) src/polyfills.js -->
 		<script type="text/javascript" src="lib/famous-polyfills/functionPrototypeBind.js"></script>
 		<script type="text/javascript" src="lib/famous-polyfills/classList.js"></script>
 		<script type="text/javascript" src="lib/famous-polyfills/requestAnimationFrame.js"></script>
 		<!-- endbuild -->
-		
+
 		<!-- process:remove:dev -->
 		<script type="text/javascript" src="src/main.js"></script>
 		<!-- /process -->
-		
+
 		<!-- process:remove:dist -->
 		<script type="text/javascript" src="lib/requirejs/require.js" data-main="src/requireConfig"></script>
 		<!-- /process -->

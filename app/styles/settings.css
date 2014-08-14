@@ -1,0 +1,46 @@
+#formulaire {
+	background: #EEE;
+	width: 400px;
+	padding: 10px;
+	color: #333;
+	border:1px solid #CCC;
+}
+
+#formulaire h1 {
+	text-align: center;
+	margin: 5px 0 10px;
+}
+
+#formulaire .inputContainer {
+	clear: both;
+	padding: 10px 0;
+}
+
+#formulaire .inputContainer label,
+#formulaire .inputContainer input {
+	float: left;
+}
+
+#formulaire .inputContainer label {
+	display: inline-block;
+	width: 140px;
+	padding-top: 3px;
+}
+
+#formulaire .inputContainer input {
+	padding: 4px 4px;
+	width: 238px;
+	margin: 0;
+	border:1px solid #CCC;
+}
+
+#formulaire .inputContainer input[type=submit] {
+	display: block;
+	width: 100%;
+	margin-top: 10px;
+	padding: 10px;
+	background: white;
+	color: #333;
+	font-size: 16px;
+	border:1px solid #CCC;
+}

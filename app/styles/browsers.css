@@ -1,0 +1,124 @@
+.browser {
+	background: linear-gradient(180deg, #edeaed 0%, #cfd1cd 100%);
+	background-repeat: no-repeat;
+}
+
+.famous-surface.browser {
+  background-size: 100% 65px;
+}
+
+.browser .browserBar {
+	position:relative;
+	height: 65px;
+	width:100%;
+	border-bottom: 1px solid #6f6f6f;
+}
+
+.browser .browserTitle,
+.browser .browserTitleWhite {
+	height: 25px;
+	display: inline-block;
+}
+
+.browser .browserTitle {
+	width:30%;
+	padding: 0px  15px;
+	position:relative;
+	overflow: hidden;
+}
+
+.browser .browserTitle:before,
+.browser .browserTitle:after {
+	content:'';
+	position: absolute;
+	top: 0px;
+	width:29px;
+	height: 15px;
+	border-bottom:1px solid #9d9d9d;
+}
+
+.browser .browserTitle .browserTitleBorder {
+	border-top:1px solid #9d9d9d;
+	padding: 6px 8px;
+	font-size: 0.8em;
+	color:#111;
+	white-space:nowrap;
+}
+
+.browser .browserTitle .browserTitleBorder img {
+	margin-bottom: -2px;
+}
+
+.browser .browserTitleWhite {
+	width:70%;
+	border-bottom:1px solid #9d9d9d;
+}
+
+.browser .browserTitle:before {
+	left: -13px;
+	transform: rotate(300deg);
+}
+
+.browser .browserTitle:after {
+	right: -13px;
+	transform: rotate(-300deg);
+}
+
+.browser .browserBar form {
+	padding: 6px 14px;
+	margin-top: -4px;
+	border-left:1px solid #9d9d9d;
+	border-right:1px solid #9d9d9d;
+}
+
+.browser .browserBar form input,
+.browser .browserBar form input:-webkit-autofill {
+	width:100%;
+	height: 27px;
+	margin: 0;
+	padding: 2px 8px;
+	border-radius: 3px;
+	border-width:1px;
+	border-color: #9b9b99 #c1bfbf #c1bfbf #c1bfbf;
+	border-style:solid;
+    -webkit-box-shadow: 0 0 0px 1000px white inset;
+    color: #222;
+    outline-width: 0;
+}
+
+.iframeContainer {
+	border: 1px solid #9d9d9d;
+	border-top: none;
+  background: white;
+}
+.loader {
+	position: relative;
+}
+.loader:before {
+	content:'';
+	position:absolute;
+	top:50%;
+	left:50%;
+	height: 100px;
+	width: 100px;
+	border: 10px solid #fff;
+	border-top: 10px solid #333;
+	border-radius: 100px;
+	margin: -60px;
+	-webkit-animation: circling 1.0s infinite linear;
+	animation: circling 1.0s infinite linear;
+}
+@-webkit-keyframes circling {
+	from { -webkit-transform:rotate(0deg);}
+	to { -webkit-transform:rotate( 360deg);}
+}
+@keyframes circling {
+	from { transform:rotate(0deg);}
+	to { transform:rotate( 360deg);}
+}
+
+iframe {
+	width: 100%;
+	border:0;
+  background:transparent;
+}

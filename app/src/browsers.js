@@ -162,14 +162,14 @@ define(function(require, exports, module) {
 		else if (e.data.action === 'ready') {
 			var thisBrowser = this.browsers[originIndex];
 			thisBrowser.currentPosition = originPosition;
-			thisBrowser.postMessage();
-			thisBrowser.showIframe();
-			thisBrowser.setTitle(e.data.pageTitle);
+			thisBrowser.onIframeReady(e.data);
 		}
 		else if (originPosition === this.browserPairs) {
 			var nextIframeIndex = this.browsers.length - 1 - ((this.browsingIndex + this.browsers.length - this.browserPairs) % this.browsers.length);
 			if (e.data.action === 'mouseover') {
-				this.browsers[nextIframeIndex].setPreview(e.data.href);
+				var thisBrowser = this.browsers[nextIframeIndex];
+				thisBrowser.iframes[1 - thisBrowser.currentIframeIndex].href = e.data.href;
+				thisBrowser.setPreview();
 			}
 			else if (e.data.action === 'mouseout') {
 				this.browsers[nextIframeIndex].removePreview();

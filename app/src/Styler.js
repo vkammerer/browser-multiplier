@@ -18,7 +18,7 @@ define(function(require, exports, module) {
 
 		this.jQueryElement.html([
 			'body {background:' + settings.siteBackground + ';} ',
-			'.iframeContainer, iframe {height:' + iframeHeight + 'px;} '
+			'.iframeContainer, iframe, .loader {height:' + iframeHeight + 'px;} '
 		].join(''));
 
 	};

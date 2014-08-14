@@ -13,7 +13,8 @@ define(function(require, exports, module) {
 
 	/* Minimum vieport width */
   var mvp = Math.max($body.width(), 1440);
-  document.getElementById('myViewport').setAttribute('content','maximum-scale=1, user-scalable=no, width=' + mvp);
+  document.getElementById('myViewport').setAttribute('content',
+	'maximum-scale=1, user-scalable=no, width=' + mvp);
 
 	/* Main context */
 

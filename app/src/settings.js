@@ -38,8 +38,6 @@ define(function(require, exports, module) {
 		this.superpositionRatio = parseFloat(thisPurl.param('superpositionRatio')) || defaults.superpositionRatio;
 		this.siteBackground = thisPurl.param('siteBackground') || defaults.siteBackground;
 
-		console.log(this);
-
 		this.modifier = new Modifier({
 			transform : Transform.translate(-10, 10, 1),
 			opacity   : 1,
