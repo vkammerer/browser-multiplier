@@ -14,3 +14,4 @@ node_modules
 .tmp
 app/lib
 .yo-rc.json
+dist

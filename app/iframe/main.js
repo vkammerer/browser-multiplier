@@ -1,8 +1,5 @@
 (function() {
 
-	var	currentPosition;
-	var browserPairs;
-	var transitionState;
 	var $body = document.getElementsByTagName('body')[0];
 	var $a = document.getElementsByTagName('a');
 	var $inactiveLayer = document.getElementById('inactiveLayer');
@@ -67,11 +64,9 @@
 		Inactive layer click
 	*/
 	var onInactiveLayerClick = function(e) {
-		if (currentPosition !== browserPairs) {
-			messageParent({
-				action : 'bodyclick'
-			});
-		}
+		messageParent({
+			action : 'bodyclick'
+		});
 	};
 
 	$inactiveLayer.addEventListener('click', onInactiveLayerClick, false);
@@ -81,21 +76,13 @@
 	*/
 	var receiveMessage = function(e) {
 
-		currentPosition = e.data.currentPosition || currentPosition;
-		browserPairs = e.data.browserPairs || browserPairs;
-		transitionState = e.data.transitionState || transitionState;
-
 		if (
-			(e.origin !== window.location.origin) ||
-			(typeof(currentPosition) === 'undefined')
+			(e.origin !== window.location.origin)
 		){
 			return false;
 		}
 
-		else if (
-			(transitionState === 'stable') &&
-			(currentPosition === browserPairs)
-		){
+		else if (e.data.availability) {
 			$body.classList.remove('inactive');
 		}
 		else {

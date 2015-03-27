@@ -2,6 +2,7 @@
 define(function(require, exports, module) {
 	'use strict';
 	var Engine = require('famous/core/Engine');
+	var EventHandler = require('famous/core/EventHandler');
 	var Settings = require('Settings');
 	var Styler = require('Styler');
 	var Browsers = require('Browsers');
@@ -20,38 +21,47 @@ define(function(require, exports, module) {
 
 	var mainContext = Engine.createContext();
 
+	var eventHandler = new EventHandler();
+
+
 	/* Settings */
 
 	var mySettings = new Settings({
 		context : mainContext
 	});
 
+	eventHandler.subscribe(mySettings.eventHandler);
+
+	/* Address bar */
+
+	eventHandler.on('settings', function(settings) {
+		console.log(settings);
+		console.log($.param(settings));
+		window.history.pushState(settings, '', '?' + $.param(settings));
+	});
+
 	/* Styler */
 
 	var myStyler = new Styler();
+
+	eventHandler.on('settings', function(settings) {
+		myStyler.set(settings);
+	});
 
 	/* Browsers */
 
 	var myBrowsers;
 
-	$body.on('settings', function(e, settings) {
-
-		myStyler.set(settings);
-
+	eventHandler.on('settings', function(settings) {
 		// Waiting for a "remove" method in famo.us
 		// https://github.com/Famous/famous/pull/153
 		$('.browser').remove();
-
-		myBrowsers = new Browsers({
-			context : mainContext,
-			browserPairs : settings.browserPairs,
-			browserWidth : settings.browserWidth,
-			contentSelector : settings.contentSelector,
-			transitionDuration : settings.transitionDuration,
-			superpositionRatio : settings.superpositionRatio,
-			interfacePadding : settings.interfacePadding,
-			sidePadding : settings.sidePadding
-		});
+		var browserSettings = $.extend({context : mainContext}, settings);
+		myBrowsers = new Browsers(browserSettings);
 	});
+
+	/* Bootstrap */
+
+	mySettings.init();
 
 });

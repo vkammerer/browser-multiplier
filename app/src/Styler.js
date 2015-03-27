@@ -17,8 +17,17 @@ define(function(require, exports, module) {
 		var iframeHeight = browserHeight - browserBarHeight;
 
 		this.jQueryElement.html([
-			'body {background:' + settings.siteBackground + ';} ',
-			'.iframeContainer, iframe, .loader {height:' + iframeHeight + 'px;} '
+			'body,',
+			'.browser .browserTitle:before,',
+			'.browser .browserTitle:after,',
+			'.browser .browserTitleWhite {',
+				'background:' + settings.siteBackground + ';',
+			'}',
+			'.iframeContainer,',
+			'iframe,',
+			'.loader {',
+				'height:' + iframeHeight + 'px;',
+			'}'
 		].join(''));
 
 	};

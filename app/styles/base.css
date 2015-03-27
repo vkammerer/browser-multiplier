@@ -3,8 +3,8 @@
 */
 
 .backfaceVisibility {
-  -webkit-backface-visibility: visible;
-  backface-visibility: visible;
+    -webkit-backface-visibility: visible;
+    backface-visibility: visible;
 }
 
 /*
